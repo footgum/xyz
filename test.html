@@ -1,0 +1,101 @@
+<html>
+<head>
+  <style type="text/css">
+    .bold {
+	  font: bold 13px sans-serif;
+	}
+	.code-block {
+	  background-color: #f4f4f4;
+	  border: 1px solid #afafaf;
+	  padding: 0.2em;
+	  display: inline-block;
+	  font-family: monospace;
+	  width: 100%;
+	}
+	textarea {
+	  display: inline-block;
+	  margin: 0.2em 0 0 0;
+	  width: 100%;
+	}
+	
+  </style>
+</head>
+<body>
+<div id="main">
+<input type="button" value="Edit" onclick="edit()"></input>
+<br/>
+<span class="bold">Обновить мастер, находясь в это время в другой ветке</span>
+<br/>
+<span class="code-block">git fetch origin master:master</span>
+<br/>
+<textarea id="textarea" rows="10"></textarea>
+<br/>
+<span class="bold">Добавить текущие изменения в последний коммит, не меняя комментарий коммита</span>
+<br/>
+<span><a href="https://stackoverflow.com/questions/1459150/how-to-undo-git-commit-amend-done-instead-of-git-commit">https://stackoverflow.com/questions/1459150/how-to-undo-git-commit-amend-done-instead-of-git-commit</a></span>
+<br/>
+<span class="code-block">git commit --amend --no-edit</span>
+</div>
+
+<script type="text/javascript">
+  function getSelectionHtml() {
+    var html = "";
+	var sel = window.getSelection();
+	if (sel.rangeCount) {
+	    var range = sel.getRangeAt(0);
+		
+		var node = getElement(range.startContainer);
+		do {
+			html += node.outerHTML;
+			
+			if (node === getElement(range.endContainer))
+			    break;
+			node = nextElement(node);
+		} while (node);
+	}
+    return html;
+  }
+  
+  function getElement(node) {
+      return node.nodeType == 1 ? node : node.parentNode;
+  }
+  
+  function nextElement(node) {
+      do {
+	      node = node.nextSibling;
+	  } while (node && node.nodeType != 1);
+	  return node;
+  }
+  
+  function state2() {
+      if (document.state)
+	      return document.state;
+	  document.state = {};
+	  return document.state;
+  }
+  
+  function edit() {
+    // console.log('aaa');
+	// var textarea = document.getElementById('textarea');
+	// var mainDiv = document.getElementById('main');
+	// mainDiv.innerHTML += textarea.value;
+	
+	var state = state2();
+	var selection = window.getSelection();
+	var range = selection.getRangeAt(0);
+	var node = getElement(range.startContainer);
+	state.nodesInEdit = [];
+	state.nodesInEdit.push(node);
+	
+	var textarea = document.createElement('textarea');
+	textarea.rows = 5;
+	textarea.value = getSelectionHtml();
+	
+	node.parentNode.replaceChild(textarea, node);
+	
+	//textarea.value = getSelectionHtml();
+  }
+</script>
+
+</body>
+</html>

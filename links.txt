@@ -1,0 +1,14 @@
+
+https://developer.mozilla.org/en-US/docs/Web/API/Selection
+https://developer.mozilla.org/en-US/docs/Web/API/Range
+https://developer.mozilla.org/en-US/docs/Web/API/Node
+https://habrahabr.ru/post/114182/ Автоизменение высоты textarea при вводе текста
+https://stackoverflow.com/questions/454202/creating-a-textarea-with-auto-resize
+
+
+
+
+
+
+
+
