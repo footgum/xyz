@@ -1,7 +1,14 @@
 <html>
 <head>
+  
+  <script type="text/javascript" src="file://c:/tmp/markdown.js"></script>
+  <script type="text/javascript" src="file://c:/tmp/markdown-test.js"></script>
+  
   <style type="text/css">
     .bold {
+	  font: bold 13px sans-serif;
+	}
+	strong {
 	  font: bold 13px sans-serif;
 	}
 	.code-block {
@@ -12,10 +19,28 @@
 	  font-family: monospace;
 	  width: 100%;
 	}
+	code {
+	  background-color: #f4f4f4;
+	  border: 1px solid #afafaf;
+	  padding: 0.2em;
+	  display: inline-block;
+	  font-family: monospace;
+	  width: 100%;
+	}
+	pre {
+	  background-color: #f4f4f4;
+	  border: 1px solid #afafaf;
+	  padding: 0.2em;
+	  display: inline-block;
+	  font-family: monospace;
+	  width: 100%;
+	  margin: 0px
+	}
 	textarea {
 	  display: inline-block;
 	  margin: 0.2em 0 0 0;
 	  width: 100%;
+	  line-height: 140%;
 	}
 	
   </style>
@@ -23,13 +48,16 @@
 <body>
 <div id="main">
 <input type="button" value="Edit" onclick="edit()"></input>
+<input type="button" value="Test" onclick="markdownTest.test()"></input>
+<br/>
+<span>Обновить мастер, находясь в это время в</span><strong> другой </strong><span>ветке</span>
 <br/>
 <span class="bold">Обновить мастер, находясь в это время в другой ветке</span>
 <br/>
 <span class="code-block">git fetch origin master:master</span>
 <br/>
-<textarea id="textarea" rows="10"></textarea>
-<br/>
+<!--<textarea id="textarea" rows="10"></textarea>
+<br/>-->
 <span class="bold">Добавить текущие изменения в последний коммит, не меняя комментарий коммита</span>
 <br/>
 <span><a href="https://stackoverflow.com/questions/1459150/how-to-undo-git-commit-amend-done-instead-of-git-commit">https://stackoverflow.com/questions/1459150/how-to-undo-git-commit-amend-done-instead-of-git-commit</a></span>
@@ -37,7 +65,82 @@
 <span class="code-block">git commit --amend --no-edit</span>
 </div>
 
+<div id="editPanelTemplate" style="display:none;">
+	<div style="display:none; border: 1px solid #aac4f7; width: 100%">
+	</div>
+	<div>
+		<textarea></textarea>
+	</div>
+	<div style="">
+		<a href="#" onclick="editPanel.showEdit(event, this)">Edit</a>
+		<a href="#" onclick="editPanel.showPreview(event, this)">Preview</a>
+		<a href="#" onclick="editPanel.saveChanges(event, this)">Save</a>
+		<a href="#" onclick="editPanel.cancel(event, this)">Cancel</a>
+	</div>
+</div>
+
 <script type="text/javascript">
+
+(function (editPanel) {
+	editPanel.showEdit = function(event, showEditButton) {
+		event.preventDefault();
+		var editPanelDiv = showEditButton.parentNode.parentNode;
+		editPanelDiv.previewSubPanel.style.display = 'none';
+		editPanelDiv.editSubPanel.style.display = 'block';
+	}
+	
+	editPanel.showPreview = function(event, showPreviewButton) {
+		event.preventDefault();
+		var editPanelDiv = showPreviewButton.parentNode.parentNode;
+		editPanelDiv.previewSubPanel.innerHTML = editPanelDiv.textarea.value;
+		editPanelDiv.previewSubPanel.style.display = 'block';
+		editPanelDiv.editSubPanel.style.display = 'none';
+	}
+	
+	editPanel.saveChanges = function(event, saveChangesButton) {
+		event.preventDefault();
+		var editPanelDiv = saveChangesButton.parentNode.parentNode;
+		editPanelDiv.previewSubPanel.innerHTML = editPanelDiv.textarea.value;
+		
+		var node = editPanelDiv.previewSubPanel.childNodes
+			.forEach((currentValue, currentIndex, listObj) => editPanelDiv.parentNode.insertBefore(currentValue, editPanelDiv));
+		editPanelDiv.parentNode.removeChild(editPanelDiv);
+	}
+	
+	editPanel.cancel = function(event, cancelButton) {
+		event.preventDefault();
+		var editPanelDiv = cancelButton.parentNode.parentNode;
+		editPanelDiv.previewSubPanel.innerHTML = editPanelDiv.oldHTML;
+		
+		var node = editPanelDiv.previewSubPanel.childNodes
+			.forEach((currentValue, currentIndex, listObj) => editPanelDiv.parentNode.insertBefore(currentValue, editPanelDiv));
+		editPanelDiv.parentNode.removeChild(editPanelDiv);
+	}
+	
+	editPanel.onTextareaInput = function(editPanelDiv) {
+		editPanelDiv.textarea.style.height = 'auto';
+		editPanelDiv.textarea.style.height = (editPanelDiv.textarea.scrollHeight + 10) + 'px';
+		editPanelDiv.previewSubPanel.style.height = Math.max(
+		editPanelDiv.previewSubPanel.offsetHeight, editPanelDiv.textarea.scrollHeight + 10) + 'px';
+		editPanelDiv.editSubPanel.style.height = Math.max(
+		editPanelDiv.previewSubPanel.offsetHeight, editPanelDiv.textarea.scrollHeight + 10) + 'px';
+	}
+	
+	editPanel.init = function() {
+		var editPanelDiv = document.getElementById('editPanelTemplate').cloneNode(true);
+		var previewSubPanel = firstChildNode(editPanelDiv);
+		var editSubPanel = nextElement(previewSubPanel);
+		var textarea = firstChildNode(editSubPanel);
+		textarea.value = getSelectionHtml();
+		editPanelDiv.textarea = textarea;
+		editPanelDiv.previewSubPanel = previewSubPanel;
+		editPanelDiv.editSubPanel = editSubPanel;
+		editPanelDiv.oldHTML = textarea.value;
+		editPanelDiv.style.display = 'block';
+		return editPanelDiv;
+	}
+}(window.editPanel = window.editPanel || {}));
+
   function getSelectionHtml() {
     var html = "";
 	var sel = window.getSelection();
@@ -50,10 +153,36 @@
 			
 			if (node === getElement(range.endContainer))
 			    break;
+			else
+				html += '\n';
 			node = nextElement(node);
 		} while (node);
 	}
     return html;
+  }
+  
+  function deleteSelectedNodes() {
+    var html = "";
+	var sel = window.getSelection();
+	if (sel.rangeCount) {
+	    var range = sel.getRangeAt(0);
+		
+		var nodesToRemove = [];
+		var node = getElement(range.startContainer);
+		do {
+			nodesToRemove.push(node);
+			if (node === getElement(range.endContainer))
+			    break;
+			node = nextElement(node);
+		} while (node);
+		
+		nodesToRemove.forEach(e => e.parentNode.removeChild(e));
+	}
+    return html;
+  }
+  
+  function moveSelectionToNode(node) {
+	
   }
   
   function getElement(node) {
@@ -67,6 +196,14 @@
 	  return node;
   }
   
+  function firstChildNode(parent) {
+      var node = parent.firstChild;
+	  while (node && node.nodeType != 1) {
+	      node = node.nextSibling;
+	  }
+	  return node;
+  }
+  
   function state2() {
       if (document.state)
 	      return document.state;
@@ -74,26 +211,34 @@
 	  return document.state;
   }
   
-  function edit() {
-    // console.log('aaa');
-	// var textarea = document.getElementById('textarea');
-	// var mainDiv = document.getElementById('main');
-	// mainDiv.innerHTML += textarea.value;
+	function onTextareaInput() {
+		this.style.height = 'auto';
+		this.style.height = (this.scrollHeight + 10) + 'px';
+	}
 	
+	function initTextarea(textarea, editPanelDiv) {
+		textarea.setAttribute('style', 'height:' + (textarea.scrollHeight + 10) + 'px;overflow-y:hidden;');
+		textarea.addEventListener('input', function() { editPanel.onTextareaInput(editPanelDiv); }, false);
+	}
+  
+  function edit() {
 	var state = state2();
 	var selection = window.getSelection();
 	var range = selection.getRangeAt(0);
 	var node = getElement(range.startContainer);
 	state.nodesInEdit = [];
 	state.nodesInEdit.push(node);
+
+	var editPanelDiv = editPanel.init();
 	
-	var textarea = document.createElement('textarea');
-	textarea.rows = 5;
-	textarea.value = getSelectionHtml();
-	
-	node.parentNode.replaceChild(textarea, node);
-	
-	//textarea.value = getSelectionHtml();
+	node.parentNode.insertBefore(editPanelDiv, node);
+	deleteSelectedNodes();
+
+	initTextarea(editPanelDiv.textarea, editPanelDiv);
+	editPanelDiv.previewSubPanel.style.height = Math.max(
+		editPanelDiv.previewSubPanel.offsetHeight, editPanelDiv.editSubPanel.offsetHeight) + 'px';
+	editPanelDiv.editSubPanel.style.height = Math.max(
+		editPanelDiv.previewSubPanel.offsetHeight, editPanelDiv.editSubPanel.offsetHeight) + 'px';
   }
 </script>
 
