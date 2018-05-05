@@ -1,6 +1,59 @@
-
+(function (markdown) {
+	
+function LinkHandler() {
+	
+	var buffer = '';
+	var openingTagIndex = 0;
+	var closingTagIndex = 0;
+	var OPENING_TAG = '<a';
+	var CLOSING_TAG = '</a>';
+	
+	this.openingTagSubstitution = function() { 
+		return '';
+	}
+	
+	this.isClosingTagReached = function() {
+		return CLOSING_TAG.length == closingTagIndex;
+	}
+	
+	this.handleChar = function(ch) {
+		if (CLOSING_TAG.charAt(closingTagIndex) == ch) {
+			closingTagIndex++;
+		
+			if (this.isClosingTagReached()) {
+				return '[' + buffer.substring(buffer.indexOf('"') + 1, buffer.lastIndexOf('"')) + ']';
+			}
+			else
+				return '';
+		}
+		
+		buffer += ch;
+		return '';
+	}
+	
+	this.reset = function() {
+		openingTagIndex = 0;
+		closingTagIndex = 0;
+		buffer = '';
+	}
+	
+	this.checkForPossibleOpeningTag = function(ch) {
+		if (OPENING_TAG.charAt(openingTagIndex) == ch) {
+			openingTagIndex++;
+			return true;
+		}
+		openingTagIndex = 0;
+		return false;
+	}
+	
+	this.isFullOpeningTagFound = function() {
+		return OPENING_TAG.length == openingTagIndex;
+	}
+}
+	
 function CodeBlockHandler() {
 	
+	var buffer = '';
 	var openingTagIndex = 0;
 	var closingTagIndex = 0;
 	var OPENING_TAG = '<pre>';
@@ -8,6 +61,12 @@ function CodeBlockHandler() {
 	
 	var OPENING_TAG_SUBSTITUTION = '`';
 	var CLOSING_TAG_SUBSTITUTION = '`';
+	
+	function htmlDecode(input)
+	{
+	  var doc = new DOMParser().parseFromString(input, "text/html");
+	  return doc.documentElement.textContent;
+	}
 	
 	this.openingTagSubstitution = function() { 
 		return OPENING_TAG_SUBSTITUTION;
@@ -21,21 +80,22 @@ function CodeBlockHandler() {
 		if (CLOSING_TAG.charAt(closingTagIndex) == ch) {
 			closingTagIndex++;
 		
-			if (this.isClosingTagReached())
-				return CLOSING_TAG_SUBSTITUTION;
+			if (this.isClosingTagReached()) {
+				buffer = htmlDecode(buffer);
+				return buffer += CLOSING_TAG_SUBSTITUTION;
+			}
 			else
 				return '';
 		}
 		
-		var result = '';
-		
-		result += ch;
-		return result;
+		buffer += ch;
+		return '';
 	}
 	
 	this.reset = function() {
 		openingTagIndex = 0;
 		closingTagIndex = 0;
+		buffer = '';
 	}
 	
 	this.checkForPossibleOpeningTag = function(ch) {
@@ -193,7 +253,7 @@ function LineBreakHandler() {
 	}
 }
 
-(function (markdown) {
+
 	
 	markdown.htmlToMarkdown = function(html) {
 		
@@ -201,7 +261,8 @@ function LineBreakHandler() {
 		var allHandlers = [new CodeBlockHandler(), 
 		                   new PlainTextHandler(),
 						   new LineBreakHandler(),
-						   new StrongHandler()];
+						   new StrongHandler(),
+						   new LinkHandler()];
 		var candidateHandlers = allHandlers;
 		var currentHandler = null;
 		
