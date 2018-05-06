@@ -53,23 +53,37 @@
 </head>
 <body>
 <div id="main">
-<input type="button" value="Edit" onclick="edit()"></input>
-<input type="button" value="Test html to markdown" onclick="markdownTest.test()"></input>
-<input type="button" value="Test markdown to html" onclick="markdownToHtmlTest.test()"></input>
-<br/>
+<input type="button" value="Edit" onclick="edit()">
+<input type="button" value="Test html to markdown" onclick="markdownTest.test()">
+<input type="button" value="Test markdown to html" onclick="markdownToHtmlTest.test()">
+<br>
 <span>Обновить мастер, находясь в это время в </span><strong>другой</strong><span> ветке</span>
-<br/>
+<br>
 <strong>Обновить мастер, находясь в это время в другой ветке</strong>
-<br/>
+<br>
 <pre>git fetch origin master:master</pre>
-<br/><br/>
+<br>
+<br>
+<strong>htop</strong>
+<span> — продвинутый монитор процессов. Он был задуман заменить стандартную программу top. Htop показывает динамический список системных процессов, список обычно выравнивается по использованию ЦПУ. В отличие от top, htop показывает все процессы в системе. Также показывает время непрерывной работы, использование процессоров и памяти. Htop часто применяется в тех случаях, когда информации даваемой утилитой top недостаточно, например при поиске утечек памяти в процессах.</span>
+
+<br>
+<br>
+<strong>Количество свободного и занятого места на дисках (чтобы посмотреть детально по каждой папке - утилита ncdu)</strong>
+<br>
+<pre>df -h    //-h = human readable - для вывода в мегабайтах/гигабайтах
+du -shc /*</pre>
+<br>
+<br>
+<strong>Добавить текущие изменения в последний коммит, не меняя комментарий коммита</strong>
+<br>
+<a href="https://stackoverflow.com/questions/1459150/how-to-undo-git-commit-amend-done-instead-of-git-commit">https://stackoverflow.com/questions/1459150/how-to-undo-git-commit-amend-done-instead-of-git-commit</a>
+<br>
+<a href="https://ru.wikipedia.org/wiki/Башкортостан">https://ru.wikipedia.org/wiki/Башкортостан</a>
+<br>
+<pre>git commit --amend --no-edit</pre>
 <!--<textarea id="textarea" rows="10"></textarea>
 <br/>-->
-<strong>Добавить текущие изменения в последний коммит, не меняя комментарий коммита</strong>
-<br/>
-<a href="https://stackoverflow.com/questions/1459150/how-to-undo-git-commit-amend-done-instead-of-git-commit">https://stackoverflow.com/questions/1459150/how-to-undo-git-commit-amend-done-instead-of-git-commit</a>
-<br/>
-<pre>git commit --amend --no-edit</pre>
 </div>
 
 <div id="editPanelTemplate" style="display:none;">

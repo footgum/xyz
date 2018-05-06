@@ -1,3 +1,20 @@
+
+(function() {
+	document.onkeypress = function(e) {
+		if (e.keyCode === 13 && document.getElementById('editPanelDiv') == null) {
+			edit();
+		}
+	}
+	
+	document.onkeydown = function(e) {
+		var editPanelDiv = document.getElementById('editPanelDiv');
+		if (e.keyCode === 27 && editPanelDiv != null) {
+			editPanelDiv.insertAdjacentHTML('afterend', editPanelDiv.oldHTML);
+			editPanelDiv.parentNode.removeChild(editPanelDiv);
+		}
+	}
+})();
+
 (function (editPanel) {
 	editPanel.showEdit = function(event, showEditButton) {
 		event.preventDefault();
@@ -20,20 +37,7 @@
 		var editPanelDiv = saveChangesButton.parentNode.parentNode;
 		var html = markdownToHtml.convert(editPanelDiv.textarea.value);
 
-		//var tmpNode = document.createElement(`<div>${html}</div>`);
-		
-		//editPanelDiv.previewSubPanel.innerHTML = html;
-		
-		console.log(editPanelDiv.textarea.value);
-		console.log(html);
-		
 		editPanelDiv.insertAdjacentHTML('afterend', html);
-		
-		/*var node = tmpNode.childNodes
-			.forEach((currentValue, currentIndex, listObj) => {
-				console.log(currentValue);
-				editPanelDiv.parentNode.insertBefore(currentValue, editPanelDiv);
-			});*/
 		editPanelDiv.parentNode.removeChild(editPanelDiv);
 	}
 	
@@ -55,6 +59,7 @@
 	
 	editPanel.init = function() {
 		var editPanelDiv = document.getElementById('editPanelTemplate').cloneNode(true);
+		editPanelDiv.id = 'editPanelDiv';
 		var previewSubPanel = firstChildNode(editPanelDiv);
 		var editSubPanel = nextElement(previewSubPanel);
 		var textarea = firstChildNode(editSubPanel);
@@ -78,15 +83,26 @@
 	    var range = sel.getRangeAt(0);
 		
 		var node = getElement(range.startContainer);
+		var weAreBeyondSelection = false;
 		do {
 			html += node.outerHTML;
 			
-			if (node === getElement(range.endContainer))
-			    break;
+			if (weAreBeyondSelection && node.tagName == 'BR')
+				break;
+			else if (node === getElement(range.endContainer))
+			    weAreBeyondSelection = true;
 			else
 				html += '\n';
 			node = nextElement(node);
 		} while (node);
+		
+		node = previousElement(getElement(range.startContainer));
+		while (node) {
+			if (node.tagName == 'BR')
+				break;
+			html = node.outerHTML + '\n' + html;
+			node = previousElement(node);
+		}
 	}
     return html;
   }
@@ -97,14 +113,26 @@
 	if (sel.rangeCount) {
 	    var range = sel.getRangeAt(0);
 		
+		var weAreBeyondEndContainer = false;
 		var nodesToRemove = [];
 		var node = getElement(range.startContainer);
 		do {
 			nodesToRemove.push(node);
-			if (node === getElement(range.endContainer))
-			    break;
+			if (weAreBeyondEndContainer && node.tagName == 'BR')
+				break;
+			else if (node === getElement(range.endContainer))
+			    weAreBeyondEndContainer = true;
 			node = nextElement(node);
 		} while (node);
+		
+		node = previousElement(getElement(range.startContainer));
+		while (node) {
+			if (node.tagName == 'BR')
+				break;
+			if (node.tagName != 'DIV')
+				nodesToRemove.push(node);
+			node = previousElement(node);
+		}
 		
 		nodesToRemove.forEach(e => e.parentNode.removeChild(e));
 	}
@@ -122,6 +150,13 @@
   function nextElement(node) {
       do {
 	      node = node.nextSibling;
+	  } while (node && node.nodeType != 1);
+	  return node;
+  }
+  
+  function previousElement(node) {
+      do {
+	      node = node.previousSibling;
 	  } while (node && node.nodeType != 1);
 	  return node;
   }

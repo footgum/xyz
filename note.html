@@ -1,0 +1,65 @@
+<html>
+
+<head>
+	<style>
+        body {
+            font-family: Helvetica, Arial;
+            font-size: 12px;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #container {
+            width: 100%;
+            height: 100%;
+        }
+
+        #left_panel {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            right: 100px;
+            background: grey;
+        }
+
+        #right_panel {
+            padding-left: 4px;
+			position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 200px;
+            color: #fff;
+            background: black;
+        }
+
+        #drag {
+            background-color: silver;
+			position: absolute;
+            left: -2px;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            cursor: w-resize;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div id="container">
+        <div id="left_panel"> left content! </div>
+        <div id="right_panel">
+            <div id="drag"></div> right content!
+        </div>
+    </div>
+	
+	<script type="text/javascript" src="file://c:/tmp/resizable-border.js"></script>
+</body>
+</html>
